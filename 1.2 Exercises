@@ -1,0 +1,95 @@
+#2) Normal distribution doesn't take place because all the time 
+#because there is a chance that the mean can be wide. Also there may be outliers. 
+#3) Median works better if your pinpointing the 50th percentile, 
+the mean may be wide, which would mean that the percentiles would vary. 
+# 5. Compute statistics manually
+def mean_manual(data):
+    return sum(data) / len(data)
+
+def median_manual(data):
+    sorted_data = sorted(data)
+    n = len(sorted_data)
+    mid = n // 2
+    return (sorted_data[mid] if n % 2 != 0 
+            else (sorted_data[mid - 1] + sorted_data[mid]) / 2)
+
+def mode_manual(data):
+    counts = Counter(data)
+    max_count = max(counts.values())
+    return [k for k, v in counts.items() if v == max_count]
+
+def variance_manual(data):
+    mean = mean_manual(data)
+    return sum((x - mean) ** 2 for x in data) / (len(data) - 1)
+
+def stddev_manual(data):
+    return math.sqrt(variance_manual(data))
+
+# Compute manually
+print("Manual Calculations:")
+print(f"Mean: {mean_manual(data)}")
+print(f"Median: {median_manual(data)}")
+print(f"Mode: {mode_manual(data)}")
+print(f"Sample Variance: {variance_manual(data)}")
+print(f"Sample Standard Deviation: {stddev_manual(data)}")
+
+# 6. Compute statistics using the statistics module
+import statistics as stats
+
+print("\nUsing statistics module:")
+print(f"Mean: {stats.mean(data)}")
+print(f"Median: {stats.median(data)}")
+print(f"Mode: {stats.mode(data)}")
+print(f"Sample Variance: {stats.variance(data)}")
+print(f"Sample Standard Deviation: {stats.stdev(data)}")
+
+# Additional calculations for Exercise 6
+def range_manual(data):
+    return max(data) - min(data)
+
+def coefficient_of_variation(data):
+    return stddev_manual(data) / mean_manual(data)
+
+def interquartile_range(data):
+    q1 = stats.median(sorted(data)[:len(data)//2])
+    q3 = stats.median(sorted(data)[(len(data)+1)//2:])
+    return q3 - q1
+
+def quartile_coefficient_of_dispersion(data):
+    q1 = stats.median(sorted(data)[:len(data)//2])
+    q3 = stats.median(sorted(data)[(len(data)+1)//2:])
+    return (q3 - q1) / (q3 + q1)
+
+print("\nAdditional Statistics:")
+print(f"Range: {range_manual(data)}")
+print(f"Coefficient of Variation: {coefficient_of_variation(data)}")
+print(f"Interquartile Range: {interquartile_range(data)}")
+print(f"Quartile Coefficient of Dispersion: {quartile_coefficient_of_dispersion(data)}")
+
+# 7. Scale the data
+def min_max_scaling(data):
+    min_val, max_val = min(data), max(data)
+    return [(x - min_val) / (max_val - min_val) for x in data]
+
+def standardize(data):
+    mean, std = mean_manual(data), stddev_manual(data)
+    return [(x - mean) / std for x in data]
+
+scaled_minmax = min_max_scaling(data)
+scaled_standardized = standardize(data)
+
+print("\nScaled Data:")
+print(f"Min-Max Scaled: {scaled_minmax}")
+print(f"Standardized: {scaled_standardized}")
+
+# 8. Compute covariance and Pearson correlation
+def covariance(x, y):
+    mean_x, mean_y = mean_manual(x), mean_manual(y)
+    return sum((a - mean_x) * (b - mean_y) for a, b in zip(x, y)) / (len(x) - 1)
+
+def pearson_correlation(x, y):
+    return covariance(x, y) / (stddev_manual(x) * stddev_manual(y))
+
+print("\nFinal Calculations:")
+print(f"Covariance: {covariance(scaled_minmax, scaled_standardized)}")
+print(f"Pearson Correlation: {pearson_correlation(scaled_minmax, scaled_standardized)}")
