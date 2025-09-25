@@ -1,0 +1,10 @@
+# Create a program that includes a dictionary of stocks. Your dictionary should include at least 10 ticker symbols. The key should be the stock ticker symbol and the value should be the current price of the stock (the values can be fictional). Ask the user to enter a ticker symbol. Your program will search the dictionary for the ticker symbol and then print the ticker symbol and the stock price. If the ticker symbol is not located, print a message indicating that the ticker symbol was not found.
+
+stocks = {'abc':'123', 'def':'456', 'ghi':'789'}
+
+ticker = input("Enter the ticker symbol:")
+
+if ticker in stocks:
+    print(f'the stock price for {ticker} is {stocks[ticker]}')
+else:
+    print("Ticker not found.") 
