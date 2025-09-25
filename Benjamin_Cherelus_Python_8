@@ -1,0 +1,36 @@
+#Prompt the user for the first and last name of the student.
+#Create a student object by passing the first and last name to the __init__ method.
+#Create a loop that prompts the user for the following: The credits and grade for each course the student has taken.
+#Once the user ends the loop display the student’s cumulative GPA.
+class Student:
+    def __init__(self, firstName, lastName):
+        self.firstName = firstName
+        self.lastName = lastName
+        self.grade = 0.0
+        self.credits = 0
+
+    def calculateGpa(self, grade, credits):
+        self.grade = grade
+        self.credits = credits
+
+    def getGpa(self):
+        return self.grade * self.credits
+
+
+def main():
+    firstName = input("Enter your first name: ")
+    lastName = input("Enter your last name: ")
+
+    grade = input("Enter your grade (e.g. 3.5): ")
+    credits = int(input("Enter your credits (e.g. 4): "))
+
+    student = Student(firstName, lastName)
+    student.calculateGpa(grade, credits)
+    cumulative_gpa = student.getGpa()
+
+    print(f'{firstName} {lastName} has a cumulative GPA of {cumulative_gpa}')
+
+
+# Call main function
+if __name__ == "__main__":
+    main() 
