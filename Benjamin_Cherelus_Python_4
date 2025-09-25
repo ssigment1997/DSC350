@@ -1,0 +1,15 @@
+# Write a program that uses a function to convert miles to kilometers. Your program should prompt the user for the number of miles driven, then call a function that converts miles to kilometers. The program should then display the total miles and kilometers:
+
+def main():
+    final()
+
+def final():
+    number_of_miles_driven = int(input('Enter the number of miles driven:'))
+    total_kilometers = number_of_miles_driven * 1.60934
+
+    print(f'You have a drove a total of {number_of_miles_driven} miles and {total_kilometers} kilometers')
+
+if __name__ == "__main__":
+    main()   
+
+
