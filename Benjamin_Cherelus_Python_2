@@ -1,0 +1,142 @@
+# I used jupyter Notebook for this code 
+# I try a couple of common filenames so this notebook can run in different environments.
+# If both exist, I prefer the non-duplicated extension.
+from pathlib import Path
+
+candidates = [Path('fighter_details.csv'), Path('fighter_details.csv.csv'), Path('/mnt/data/fighter_details.csv'), Path('/mnt/data/fighter_details.csv.csv')]
+for_path = None
+for p in candidates:
+    if p.exists():
+        for_path = p
+        break
+
+if for_path is None:
+    raise FileNotFoundError("Couldn't find fighter_details CSV. Put it next to this notebook as 'fighter_details.csv'.")
+
+print('Using data file:', for_path)
+
+# I open the CSV with UTF-8 to avoid surprises with special characters.
+# DictReader maps each row to a dictionary keyed by the column names.
+import csv
+
+with open(for_path, 'r', encoding='utf-8', newline='') as f:
+    reader = csv.DictReader(f)
+    print('Column names:')
+    print(reader.fieldnames)
+
+    # I also peek at the first three rows just to get a feel for the data.
+    sample = [next(reader) for _ in range(3)]
+    print('\nSample rows (first 3):')
+    for i, row in enumerate(sample, 1):
+        print(f'Row {i}:', {k: row[k] for k in row.keys()})
+
+# I put stances into three buckets to mimic a two-category-plus-"other" classification.
+orthodox_count = 0
+southpaw_count = 0
+other_count = 0
+
+with open(for_path, 'r', encoding='utf-8', newline='') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        stance = (row.get('stance') or '').strip().lower()
+        if stance == 'orthodox':
+            orthodox_count += 1
+        elif stance == 'southpaw':
+            southpaw_count += 1
+        else:
+            other_count += 1
+
+print('Orthodox :', orthodox_count)
+print('Southpaw :', southpaw_count)
+print('Other    :', other_count)
+
+# Counter is perfect for frequency tables. I still sanitize text to avoid tiny variations.
+from collections import Counter
+
+stance_counts = Counter()
+with open(for_path, 'r', encoding='utf-8', newline='') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        label = (row.get('stance') or 'Unknown').strip()
+        stance_counts[label] += 1
+
+print('All stance counts (top to bottom):')
+for label, n in stance_counts.most_common():
+    print(f'{label}: {n}')
+
+# I translate raw counts into shares of the whole so we can compare categories fairly.
+total = sum(stance_counts.values())
+percentages = {label: (n/total)*100 for label, n in stance_counts.items()}
+
+# Display in descending order
+for label, n in sorted(percentages.items(), key=lambda kv: kv[1], reverse=True):
+    print(f'{label:15s} {n:6.2f}% (n={stance_counts[label]})')
+
+print('\nTotal rows counted:', total)
+
+# I like small, testable functions. This one accepts a path and a column name,
+# cleans strings, and returns a Counter of category frequencies.
+def value_counts_from_csv(path, column, normalize_case=True, blank_label='Unknown'):
+    import csv
+    from collections import Counter
+    c = Counter()
+    with open(path, 'r', encoding='utf-8', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            val = row.get(column)
+            if val is None or val == '':
+                label = blank_label
+            else:
+                label = val.strip()
+                if normalize_case:
+                    label = label.lower()
+            c[label] += 1
+    return c
+
+test_counts = value_counts_from_csv(for_path, 'stance')
+print('Function check — stance counts (lowercased):', sum(test_counts.values()), 'rows')
+for k, v in test_counts.most_common():
+    print(f'{k}: {v}')
+
+# I switch to pandas for a compact group-by. Here I compute mean wins per stance
+# and draw a basic bar chart (single figure, no custom styles).
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv(for_path)
+df['stance_clean'] = df['stance'].fillna('Unknown').str.strip()
+
+# Convert numeric-looking columns safely
+for col in ['wins', 'losses', 'reach', 'height']:
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
+agg = df.groupby('stance_clean', dropna=False).agg(
+    mean_wins=('wins', 'mean'),
+    count=('stance_clean', 'size')
+).sort_values('count', ascending=False)
+
+print(agg.head(10))
+
+# Simple bar chart: average wins by stance (top categories only)
+top = agg.head(6)
+plt.figure()
+top['mean_wins'].plot(kind='bar')
+plt.title('Average Wins by Stance (top groups)')
+plt.xlabel('Stance')
+plt.ylabel('Mean Wins')
+plt.tight_layout()
+plt.show()
+
+# I export the stance frequency table with percentages so it can be submitted or reused.
+import pandas as pd
+
+freq_rows = [
+    {'stance': label, 'count': stance_counts[label], 'percent': percentages[label]}
+    for label in stance_counts.keys()
+]
+out_df = pd.DataFrame(freq_rows).sort_values('count', ascending=False)
+
+out_path = Path('stance_summary.csv')
+out_df.to_csv(out_path, index=False, encoding='utf-8')
+print('Wrote summary to:', out_path.resolve())
