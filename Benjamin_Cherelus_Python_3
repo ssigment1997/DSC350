@@ -1,0 +1,19 @@
+3) 
+Assignment:
+
+Write a program that uses a while loop to determine how long it takes for an investment to double at a given interest rate. The input will be an annualized interest rate and the initial investment amount. The output is the number of years it takes an investment to double.
+
+#Code starts here
+annualized_interest_rate = float(input('Enter the annual interst rate:'))
+
+initial_investment = float(input('Enter the your initial investment:'))
+
+doubled_investment = initial_investment * 2  # fix: use *2, not **2
+current_value = initial_investment
+years = 0
+
+while current_value < doubled_investment:  # fix: should be <
+    current_value = current_value * (1 + annualized_interest_rate)  # fix: compound growth
+    years += 1
+
+print(f'It will take {years} years for your investment to double')  # moved out of loop 
