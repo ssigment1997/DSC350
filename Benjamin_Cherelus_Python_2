@@ -1,0 +1,33 @@
+2) 
+Assignment: 
+
+Display a welcome message for your program.
+Capture the number of feet of fiber optic to be installed from the user.
+Evaluate the total cost based on the number of feet requested as described below.
+If the user purchases more than 100 feet, they are charged $.80 per foot.
+If the user purchases more than 250 feet, they will be charged $.70 per foot.
+If they purchase more than 500 feet, they will be charged $.50 per foot.
+Display the calculated information including the number of feet requested and the company name.
+print('Welcome to my first program')
+feet_of_optic = int(input('Enter the number of feet of fiber optic to be installed:'))
+
+
+
+charge_1 = float(.80)
+charge_2 = float(.70)
+charge_3 = float(.50)
+
+if feet_of_optic >= 100:
+    total_cost = feet_of_optic * charge_1
+    print(f'the total cost is {total_cost}')
+
+elif feet_of_optic >= 250:
+    total_cost = feet_of_optic * charge_2
+    print(f'the total cost is {total_cost}')
+
+elif feet_of_optic >= 500:
+    total_cost = feet_of_optic * charge_3
+    print(f'the total cost is {total_cost}')
+
+else:
+    print('Invalid input')
